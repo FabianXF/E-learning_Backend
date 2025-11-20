@@ -25,6 +25,11 @@ const Inscripcion = sequelize.define('Inscripcion', {
     allowNull: false,
     defaultValue: DataTypes.NOW,
     field: 'fechaInscripcion'
+  },
+  progresoPorcentaje: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    field: 'progresoPorcentaje'
   }
 }, {
   tableName: 'Inscripcion',

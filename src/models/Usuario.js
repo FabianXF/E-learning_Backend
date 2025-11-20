@@ -41,6 +41,10 @@ const Usuario = sequelize.define('Usuario', {
     validate: {
       isIn: [['estudiante', 'docente', 'admin']]
     }
+  },
+  avatar: {
+    type: DataTypes.STRING(255),
+    allowNull: true
   }
 }, {
   tableName: 'Usuario',

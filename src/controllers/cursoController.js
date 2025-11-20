@@ -54,13 +54,14 @@ const crearCurso = async (req, res, next) => {
       });
     }
 
-    const { titulo, descripcion, categoria } = req.body;
+    const { titulo, descripcion, categoria, imagenUrl } = req.body;
     const idDocente = req.usuario.idUsuario;
 
     const nuevoCurso = await Curso.create({
       titulo,
       descripcion,
       categoria,
+      imagenUrl,
       idDocente
     });
 
@@ -224,7 +225,14 @@ const editarCurso = async (req, res, next) => {
       });
     }
 
-    await curso.update(req.body);
+    const { titulo, descripcion, categoria, imagenUrl } = req.body;
+
+    await curso.update({
+      titulo,
+      descripcion,
+      categoria,
+      imagenUrl
+    });
 
     const cursoActualizado = await Curso.findByPk(id, {
       include: [
@@ -330,6 +338,61 @@ const agregarModulo = async (req, res, next) => {
   }
 };
 
+// Obtener módulos de un curso (con materiales)
+const obtenerModulos = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const idUsuario = req.usuario.idUsuario;
+
+    // Verificar que el curso existe
+    const curso = await Curso.findByPk(id);
+    if (!curso) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Curso no encontrado'
+      });
+    }
+
+    // Verificar si el usuario está inscrito o es el docente
+    const esDocente = curso.idDocente === idUsuario;
+    const estaInscrito = await Inscripcion.findOne({
+      where: {
+        idUsuario,
+        idCurso: id
+      }
+    });
+
+    if (!esDocente && !estaInscrito) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Debes estar inscrito en el curso para ver sus módulos'
+      });
+    }
+
+    // Obtener módulos con materiales
+    const modulos = await Modulo.findAll({
+      where: { idCurso: id },
+      include: [
+        {
+          model: Material,
+          as: 'materiales'
+        }
+      ],
+      order: [['orden', 'ASC'], [{ model: Material, as: 'materiales' }, 'idMaterial', 'ASC']]
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Módulos obtenidos exitosamente',
+      data: {
+        modulos
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   buscarCursos,
   crearCurso,
@@ -337,5 +400,6 @@ module.exports = {
   obtenerMateriales,
   editarCurso,
   eliminarCurso,
-  agregarModulo
+  agregarModulo,
+  obtenerModulos
 };

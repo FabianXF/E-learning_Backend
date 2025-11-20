@@ -30,6 +30,14 @@ const Curso = sequelize.define('Curso', {
       notEmpty: true
     }
   },
+  imagenUrl: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  fechaCreacion: {
+    type: DataTypes.DATEONLY,
+    defaultValue: DataTypes.NOW
+  },
   idDocente: {
     type: DataTypes.INTEGER,
     allowNull: false,

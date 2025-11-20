@@ -1,10 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const progresoController = require('../controllers/progresoController');
-const authMiddleware = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
-router.get('/:idCurso', authMiddleware, progresoController.getProgreso);
+router.get(
+  '/:idCurso',
+  authenticateToken,
+  progresoController.getProgreso
+);
 
-router.put('/:idCurso/material/:idMaterial', authMiddleware, progresoController.updateProgreso);
+router.put(
+  '/:idCurso/material/:idMaterial',
+  authenticateToken,
+  progresoController.updateProgreso
+);
 
 module.exports = router;

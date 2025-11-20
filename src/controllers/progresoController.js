@@ -3,14 +3,14 @@ const { validationResult } = require('express-validator');
 
 exports.getProgreso = async (req, res) => {
   try {
-    const inscripcion = await Inscripcion.findOne({ where: { idUsuario: req.user.idUsuario, idCurso: req.params.idCurso } });
+    const inscripcion = await Inscripcion.findOne({ where: { idUsuario: req.usuario.idUsuario, idCurso: req.params.idCurso } });
     if (!inscripcion) {
       return res.status(403).json({ status: 'error', message: 'No inscrito en este curso' });
     }
 
     const modulos = await Modulo.findAll({ where: { idCurso: req.params.idCurso } });
     const totalMateriales = await Material.count({ where: { idModulo: modulos.map(m => m.idModulo) } });
-    const completados = await ProgresoMaterial.count({ where: { idUsuario: req.user.idUsuario, completado: true } });
+    const completados = await ProgresoMaterial.count({ where: { idUsuario: req.usuario.idUsuario, completado: true } });
 
     const porcentaje = totalMateriales > 0 ? Math.round((completados / totalMateriales) * 100) : 0;
 
@@ -39,13 +39,13 @@ exports.updateProgreso = async (req, res) => {
 
     const modulo = await material.getModulo();
     const curso = await modulo.getCurso();
-    const inscripcion = await Inscripcion.findOne({ where: { idUsuario: req.user.idUsuario, idCurso: curso.idCurso } });
+    const inscripcion = await Inscripcion.findOne({ where: { idUsuario: req.usuario.idUsuario, idCurso: curso.idCurso } });
     if (!inscripcion) {
       return res.status(403).json({ status: 'error', message: 'No inscrito en este curso' });
     }
 
     const [progreso, created] = await ProgresoMaterial.upsert({
-      idUsuario: req.user.idUsuario,
+      idUsuario: req.usuario.idUsuario,
       idMaterial: material.idMaterial,
       completado: true,
       fechaCompletado: new Date()

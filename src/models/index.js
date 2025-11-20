@@ -12,6 +12,7 @@ const Pregunta = require('./Pregunta');
 const Opcion = require('./Opcion');
 const RespuestaEstudiante = require('./RespuestaEstudiante');
 const Certificado = require('./Certificado');
+const { sequelize } = require('../config/db');
 
 // Definir relaciones
 Usuario.hasMany(Curso, { foreignKey: 'idDocente', as: 'cursos' });

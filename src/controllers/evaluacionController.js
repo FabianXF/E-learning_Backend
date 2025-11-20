@@ -1,32 +1,75 @@
 const { Evaluacion, Pregunta, Opcion, RespuestaEstudiante, Curso } = require('../models');
 const { validationResult } = require('express-validator');
+const { sequelize } = require('../config/db');
 
 exports.createEvaluacion = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ status: 'error', message: 'Validación fallida', errors: errors.array() });
-  }
+  const t = await sequelize.transaction();
 
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      await t.rollback();
+      return res.status(400).json({ status: 'error', message: 'Validación fallida', errors: errors.array() });
+    }
+
+    console.log('Creating evaluation with body:', JSON.stringify(req.body, null, 2));
     const { titulo, descripcion, fechaInicio, fechaFin, idCurso, preguntas } = req.body;
+
     const curso = await Curso.findByPk(idCurso);
-    if (!curso || curso.idDocente !== req.user.idUsuario) {
+    if (!curso) {
+      await t.rollback();
+      return res.status(404).json({ status: 'error', message: 'Curso no encontrado' });
+    }
+
+    // Fix: Use req.usuario instead of req.user
+    if (curso.idDocente !== req.usuario.idUsuario) {
+      await t.rollback();
       return res.status(403).json({ status: 'error', message: 'No autorizado para crear evaluaciones en este curso' });
     }
 
-    const evaluacion = await Evaluacion.create({ titulo, descripcion, fechaInicio, fechaFin, idCurso });
+    if (new Date(fechaFin) < new Date(fechaInicio)) {
+      await t.rollback();
+      return res.status(400).json({ status: 'error', message: 'La fecha de fin debe ser posterior o igual a la fecha de inicio' });
+    }
 
-    for (const preg of preguntas) {
-      const pregunta = await Pregunta.create({ textoPregunta: preg.textoPregunta, tipo: preg.tipo, puntos: preg.puntos, idEvaluacion: evaluacion.idEvaluacion });
-      if (preg.tipo === 'opcion_multiple' && preg.opciones) {
-        for (const opc of preg.opciones) {
-          await Opcion.create({ texto: opc.texto, esCorrecta: opc.esCorrecta, idPregunta: pregunta.idPregunta });
+    const evaluacion = await Evaluacion.create({
+      titulo,
+      descripcion,
+      fechaInicio,
+      fechaFin,
+      idCurso
+    }, { transaction: t });
+
+    if (preguntas && preguntas.length > 0) {
+      for (const preg of preguntas) {
+        const pregunta = await Pregunta.create({
+          textoPregunta: preg.textoPregunta,
+          tipo: preg.tipo,
+          puntos: preg.puntos,
+          idEvaluacion: evaluacion.idEvaluacion
+        }, { transaction: t });
+
+        if (preg.tipo === 'opcion_multiple' && preg.opciones) {
+          for (const opc of preg.opciones) {
+            await Opcion.create({
+              texto: opc.texto,
+              esCorrecta: opc.esCorrecta,
+              idPregunta: pregunta.idPregunta
+            }, { transaction: t });
+          }
         }
       }
     }
 
+    await t.commit();
     res.status(201).json({ status: 'success', message: 'Evaluación creada', data: { evaluacion } });
+
   } catch (error) {
+    await t.rollback();
+    console.error('Error creating evaluation:', error);
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ status: 'error', message: error.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
@@ -66,9 +109,7 @@ exports.submitEvaluacion = async (req, res) => {
           puntaje += pregunta.puntos;
         }
       } else if (pregunta.tipo === 'verdadero_falso') {
-        // Asume respuestaTexto es 'verdadero' o 'falso', compara con correcta
-        // Para simplicidad, asume lógica aquí
-        correcta = true; // Implementar verificación
+        correcta = true; // Implementar verificación real
         if (correcta) puntaje += pregunta.puntos;
       } else if (pregunta.tipo === 'abierta') {
         feedback += 'Respuesta abierta pendiente de revisión. ';
@@ -76,7 +117,7 @@ exports.submitEvaluacion = async (req, res) => {
 
       await RespuestaEstudiante.create({
         idPregunta: resp.idPregunta,
-        idUsuario: req.user.idUsuario,
+        idUsuario: req.usuario.idUsuario,
         respuestaTexto: resp.respuestaTexto,
         idOpcionSeleccionada: resp.idOpcionSeleccionada,
         correcta
@@ -97,8 +138,8 @@ exports.getResults = async (req, res) => {
     }
 
     const curso = await evaluacion.getCurso();
-    const isDocente = curso.idDocente === req.user.idUsuario;
-    const respuestas = await RespuestaEstudiante.findAll({ where: { idUsuario: req.user.idUsuario } }); // O todas si docente
+    const isDocente = curso.idDocente === req.usuario.idUsuario;
+    const respuestas = await RespuestaEstudiante.findAll({ where: { idUsuario: req.usuario.idUsuario } });
 
     if (!isDocente) {
       // Solo propias

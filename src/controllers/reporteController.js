@@ -1,4 +1,5 @@
 const { Curso, Inscripcion, RespuestaEstudiante, ProgresoMaterial } = require('../models');
+
 const pdfGenerator = require('../utils/pdfGenerator');
 const emailSender = require('../utils/emailSender');
 const path = require('path');
@@ -6,7 +7,7 @@ const path = require('path');
 exports.getReporte = async (req, res) => {
   try {
     const curso = await Curso.findByPk(req.params.idCurso);
-    if (!curso || (curso.idDocente !== req.user.idUsuario && req.user.rol !== 'admin')) {
+    if (!curso || (curso.idDocente !== req.usuario.idUsuario && req.usuario.rol !== 'admin')) {
       return res.status(403).json({ status: 'error', message: 'No autorizado para generar reportes de este curso' });
     }
 
@@ -19,7 +20,7 @@ exports.getReporte = async (req, res) => {
     pdfGenerator.generateReporte(data, filePath);
 
     if (req.query.email === 'true') {
-      await emailSender.sendReporte(req.user.correo, filePath);
+      await emailSender.sendReporte(req.usuario.correo, filePath);
     }
 
     res.json({ status: 'success', message: 'Reporte generado', data: { url: `/reports/reporte-${curso.idCurso}.pdf` } });

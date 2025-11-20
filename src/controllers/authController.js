@@ -37,7 +37,8 @@ const register = async (req, res, next) => {
       nombre: nombreUsuario,
       correo,
       contrasena,
-      rol: req.body.rol || 'estudiante'
+      rol: req.body.rol || 'estudiante',
+      avatar: req.body.avatar || null
     });
 
     // Retornar respuesta (sin contraseña) - Formato según guía de estilos
@@ -78,7 +79,7 @@ const login = async (req, res, next) => {
     }
 
     const { password, correo, contrasena } = req.body;
-    
+
     // Normalizar campos (aceptar ambos formatos)
     const correoLogin = (correo || req.body.emailAddress || '').trim().toLowerCase();
     const contrasenaLogin = password || contrasena;
@@ -98,7 +99,7 @@ const login = async (req, res, next) => {
     const usuario = await Usuario.findOne({
       where: { correo: correoLogin }
     });
-    
+
     if (!usuario) {
       return res.status(401).json({
         success: false,

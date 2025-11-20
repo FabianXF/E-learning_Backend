@@ -8,12 +8,16 @@ const Evaluacion = sequelize.define('Evaluacion', {
     autoIncrement: true,
     field: 'idEvaluacion'
   },
-  tipo: {
-    type: DataTypes.STRING(30),
+  titulo: {
+    type: DataTypes.STRING(200),
     allowNull: false,
     validate: {
       notEmpty: true
     }
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
   fechaInicio: {
     type: DataTypes.DATEONLY,
@@ -25,9 +29,9 @@ const Evaluacion = sequelize.define('Evaluacion', {
     allowNull: false,
     field: 'fechaFin',
     validate: {
-      isAfter: function(value) {
-        if (this.fechaInicio && value <= this.fechaInicio) {
-          throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
+      isAfter: function (value) {
+        if (this.fechaInicio && value < this.fechaInicio) {
+          throw new Error('La fecha de fin debe ser posterior o igual a la fecha de inicio');
         }
       }
     }
@@ -47,6 +51,3 @@ const Evaluacion = sequelize.define('Evaluacion', {
 });
 
 module.exports = Evaluacion;
-
-
-

@@ -15,7 +15,8 @@ exports.uploadMaterial = async (req, res) => {
     }
 
     const curso = await modulo.getCurso();
-    if (curso.idDocente !== req.user.idUsuario || req.user.rol !== 'docente') {
+    // Fix: Use req.usuario instead of req.user
+    if (curso.idDocente !== req.usuario.idUsuario || req.usuario.rol !== 'docente') {
       return res.status(403).json({ status: 'error', message: 'No autorizado para subir materiales en este curso' });
     }
 
@@ -38,8 +39,9 @@ exports.getMaterial = async (req, res) => {
 
     const modulo = await material.getModulo();
     const curso = await modulo.getCurso();
-    const isDocente = curso.idDocente === req.user.idUsuario;
-    const isInscrito = await Inscripcion.findOne({ where: { idUsuario: req.user.idUsuario, idCurso: curso.idCurso } });
+    // Fix: Use req.usuario instead of req.user
+    const isDocente = curso.idDocente === req.usuario.idUsuario;
+    const isInscrito = await Inscripcion.findOne({ where: { idUsuario: req.usuario.idUsuario, idCurso: curso.idCurso } });
 
     if (!isDocente && !isInscrito) {
       return res.status(403).json({ status: 'error', message: 'No autorizado para acceder a este material' });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { buscarCursos, crearCurso, inscribirseEnCurso, obtenerMateriales, editarCurso, eliminarCurso, agregarModulo } = require('../controllers/cursoController');
+const { buscarCursos, crearCurso, inscribirseEnCurso, obtenerMateriales, editarCurso, eliminarCurso, agregarModulo, obtenerModulos } = require('../controllers/cursoController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // Validaciones para crear curso
@@ -68,6 +68,9 @@ router.delete('/:id', authenticateToken, requireRole('docente', 'admin'), elimin
 
 // POST /api/cursos/:id/modulos - Agregar módulo (solo docente)
 router.post('/:id/modulos', authenticateToken, requireRole('docente'), validarAgregarModulo, agregarModulo);
+
+// GET /api/cursos/:id/modulos - Obtener módulos de un curso (inscritos y docentes)
+router.get('/:id/modulos', authenticateToken, obtenerModulos);
 
 // POST /api/cursos/:id/inscribirse - Inscribirse en un curso (autenticado)
 router.post('/:id/inscribirse', authenticateToken, inscribirseEnCurso);

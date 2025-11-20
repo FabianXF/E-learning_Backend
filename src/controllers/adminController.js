@@ -1,7 +1,7 @@
 const { Usuario, Curso } = require('../models');
 
 exports.getUsuarios = async (req, res) => {
-  if (req.user.rol !== 'admin') {
+  if (req.usuario.rol !== 'admin') {
     return res.status(403).json({ status: 'error', message: 'No autorizado' });
   }
 
@@ -14,7 +14,7 @@ exports.getUsuarios = async (req, res) => {
 };
 
 exports.updateUsuario = async (req, res) => {
-  if (req.user.rol !== 'admin') {
+  if (req.usuario.rol !== 'admin') {
     return res.status(403).json({ status: 'error', message: 'No autorizado' });
   }
 
@@ -32,7 +32,7 @@ exports.updateUsuario = async (req, res) => {
 };
 
 exports.deleteUsuario = async (req, res) => {
-  if (req.user.rol !== 'admin') {
+  if (req.usuario.rol !== 'admin') {
     return res.status(403).json({ status: 'error', message: 'No autorizado' });
   }
 
@@ -50,7 +50,7 @@ exports.deleteUsuario = async (req, res) => {
 };
 
 exports.getMonitor = async (req, res) => {
-  if (req.user.rol !== 'admin') {
+  if (req.usuario.rol !== 'admin') {
     return res.status(403).json({ status: 'error', message: 'No autorizado' });
   }
 
