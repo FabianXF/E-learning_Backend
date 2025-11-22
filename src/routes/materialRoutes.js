@@ -8,7 +8,7 @@ const { body } = require('express-validator');
 router.post(
   '/upload',
   authenticateToken,
-  upload.single('file'),
+  upload,  // Ya no es upload.single('file'), ahora upload es el middleware completo
   body('titulo').trim().notEmpty().withMessage('Título requerido'),
   body('tipo').isIn(['pdf', 'video', 'doc', 'image']).withMessage('Tipo inválido'),
   body('idModulo').isNumeric().withMessage('ID de módulo inválido'),

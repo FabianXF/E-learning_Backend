@@ -15,4 +15,11 @@ router.put(
   progresoController.updateProgreso
 );
 
+// DELETE - Desmarcar material como completado
+router.delete(
+  '/:idCurso/material/:idMaterial',
+  authenticateToken,
+  progresoController.deleteProgreso
+);
+
 module.exports = router;

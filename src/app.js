@@ -12,6 +12,7 @@ const progresoRoutes = require('./routes/progresoRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
 const certificadoRoutes = require('./routes/certificadoRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Importar middleware de errores
 const errorHandler = require('./utils/errorHandler');
@@ -43,6 +44,7 @@ app.use('/api/progreso', progresoRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/certificados', certificadoRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 
 // Ruta 404 - No encontrada
 app.use((req, res) => {

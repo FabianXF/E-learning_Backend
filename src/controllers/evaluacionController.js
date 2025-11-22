@@ -42,20 +42,42 @@ exports.createEvaluacion = async (req, res) => {
 
     if (preguntas && preguntas.length > 0) {
       for (const preg of preguntas) {
+        // Adaptar formato del frontend al backend
+        // Frontend envía: { pregunta, opciones: ["A", "B", "C"], respuestaCorrecta: 0 }
+        // Backend necesita: { textoPregunta, tipo, puntos, opciones: [{ texto, esCorrecta }] }
+
+        const textoPregunta = preg.pregunta || preg.textoPregunta;
+        const tipo = preg.tipo || 'opcion_multiple';
+        const puntos = preg.puntos || 10;
+
         const pregunta = await Pregunta.create({
-          textoPregunta: preg.textoPregunta,
-          tipo: preg.tipo,
-          puntos: preg.puntos,
+          textoPregunta,
+          tipo,
+          puntos,
           idEvaluacion: evaluacion.idEvaluacion
         }, { transaction: t });
 
-        if (preg.tipo === 'opcion_multiple' && preg.opciones) {
-          for (const opc of preg.opciones) {
-            await Opcion.create({
-              texto: opc.texto,
-              esCorrecta: opc.esCorrecta,
-              idPregunta: pregunta.idPregunta
-            }, { transaction: t });
+        // Convertir opciones del frontend al formato del backend
+        if (tipo === 'opcion_multiple' && preg.opciones) {
+          // Si opciones es un array de strings (formato frontend)
+          if (Array.isArray(preg.opciones) && typeof preg.opciones[0] === 'string') {
+            for (let i = 0; i < preg.opciones.length; i++) {
+              await Opcion.create({
+                texto: preg.opciones[i],
+                esCorrecta: i === preg.respuestaCorrecta,
+                idPregunta: pregunta.idPregunta
+              }, { transaction: t });
+            }
+          }
+          // Si opciones ya está en formato backend (array de objetos)
+          else if (Array.isArray(preg.opciones) && typeof preg.opciones[0] === 'object') {
+            for (const opc of preg.opciones) {
+              await Opcion.create({
+                texto: opc.texto,
+                esCorrecta: opc.esCorrecta,
+                idPregunta: pregunta.idPregunta
+              }, { transaction: t });
+            }
           }
         }
       }

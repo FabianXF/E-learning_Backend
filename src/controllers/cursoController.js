@@ -344,14 +344,21 @@ const obtenerModulos = async (req, res, next) => {
     const { id } = req.params;
     const idUsuario = req.usuario.idUsuario;
 
+    console.log('[OBTENER MODULOS] ===== Nueva petición =====');
+    console.log('[OBTENER MODULOS] idCurso:', id);
+    console.log('[OBTENER MODULOS] idUsuario:', idUsuario);
+
     // Verificar que el curso existe
     const curso = await Curso.findByPk(id);
     if (!curso) {
+      console.log('[OBTENER MODULOS] ❌ Curso no encontrado');
       return res.status(404).json({
         status: 'error',
         message: 'Curso no encontrado'
       });
     }
+
+    console.log('[OBTENER MODULOS] ✅ Curso encontrado:', curso.titulo);
 
     // Verificar si el usuario está inscrito o es el docente
     const esDocente = curso.idDocente === idUsuario;
@@ -362,12 +369,18 @@ const obtenerModulos = async (req, res, next) => {
       }
     });
 
+    console.log('[OBTENER MODULOS] Es docente:', esDocente);
+    console.log('[OBTENER MODULOS] Está inscrito:', !!estaInscrito);
+
     if (!esDocente && !estaInscrito) {
+      console.log('[OBTENER MODULOS] ❌ Usuario no autorizado');
       return res.status(403).json({
         status: 'error',
         message: 'Debes estar inscrito en el curso para ver sus módulos'
       });
     }
+
+    console.log('[OBTENER MODULOS] ✅ Usuario autorizado');
 
     // Obtener módulos con materiales
     const modulos = await Modulo.findAll({
@@ -375,10 +388,30 @@ const obtenerModulos = async (req, res, next) => {
       include: [
         {
           model: Material,
-          as: 'materiales'
+          as: 'materiales',
+          required: false  // LEFT JOIN para incluir módulos sin materiales
         }
       ],
-      order: [['orden', 'ASC'], [{ model: Material, as: 'materiales' }, 'idMaterial', 'ASC']]
+      order: [['orden', 'ASC']]
+    });
+
+    console.log('[OBTENER MODULOS] Módulos encontrados:', modulos.length);
+    modulos.forEach((modulo, index) => {
+      console.log(`[OBTENER MODULOS] Módulo ${index + 1}:`, {
+        id: modulo.idModulo,
+        titulo: modulo.titulo,
+        materiales: modulo.materiales ? modulo.materiales.length : 0
+      });
+      if (modulo.materiales && modulo.materiales.length > 0) {
+        modulo.materiales.forEach((material, idx) => {
+          console.log(`  Material ${idx + 1}:`, {
+            id: material.idMaterial,
+            titulo: material.titulo,
+            tipo: material.tipo,
+            url: material.url
+          });
+        });
+      }
     });
 
     res.status(200).json({
@@ -389,6 +422,7 @@ const obtenerModulos = async (req, res, next) => {
       }
     });
   } catch (error) {
+    console.error('[OBTENER MODULOS] ❌ Error:', error);
     next(error);
   }
 };

@@ -18,8 +18,10 @@ async function connectDB() {
     await sequelize.authenticate();
     console.log('Conexión a DB establecida');
     if (process.env.SYNC_DB === 'true') {
-      await sequelize.sync({ alter: process.env.SYNC_DB_ALTER === 'true' });
-      console.log('Modelos sincronizados');
+      // Cambiado de alter: true a false para evitar ER_TOO_MANY_KEYS
+      // alter: true intenta modificar tablas existentes y puede causar problemas con índices
+      await sequelize.sync({ alter: false });
+      console.log('Modelos sincronizados (solo nuevas tablas)');
     }
   } catch (error) {
     console.error('Error conectando a DB:', error);
