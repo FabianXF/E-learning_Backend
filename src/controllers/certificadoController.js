@@ -1,8 +1,8 @@
 const { Certificado, Curso, Inscripcion } = require('../models');
-
-const pdfGenerator = require('../utils/pdfGenerator');
+const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const pdfGenerator = require('../utils/pdfGenerator');
 
 exports.getCertificado = async (req, res) => {
   try {
@@ -24,8 +24,25 @@ exports.getCertificado = async (req, res) => {
     const filePath = pdfGenerator.generateCertificado(req.usuario, curso, codigo);
     await certificado.update({ urlPDF: filePath });
 
-    res.json({ status: 'success', message: 'Certificado generado', data: { url: filePath } });
+    // Esperar un momento para asegurar que el archivo se escriba completamente
+    setTimeout(() => {
+      if (fs.existsSync(filePath)) {
+        res.download(filePath, `Certificado-${curso.titulo}.pdf`, (err) => {
+          if (err) {
+            console.error('[CERTIFICADO] Error al descargar:', err);
+            if (!res.headersSent) {
+              res.status(500).json({ status: 'error', message: 'Error al descargar el certificado' });
+            }
+          }
+        });
+      } else {
+        console.error('[CERTIFICADO] Archivo no encontrado:', filePath);
+        res.status(500).json({ status: 'error', message: 'Error al generar el archivo del certificado' });
+      }
+    }, 1000); // Pequeño delay para asegurar escritura
+
   } catch (error) {
+    console.error('[CERTIFICADO] Error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

@@ -16,6 +16,9 @@ router.post(
 // Obtener foros de un curso
 router.get('/curso/:idCurso', authenticateToken, foroController.getForosByCurso);
 
+// Obtener mis foros (todos los cursos)
+router.get('/mis-foros', authenticateToken, foroController.getMisForos);
+
 // Obtener foro
 router.get('/:id', authenticateToken, foroController.getForo);
 

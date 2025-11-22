@@ -22,6 +22,20 @@ router.post(
   evaluacionController.submitEvaluacion
 );
 
+// Obtener evaluaciones de un curso (debe ir ANTES de /:id/results)
+router.get(
+  '/curso/:idCurso',
+  authenticateToken,
+  evaluacionController.getEvaluacionesByCurso
+);
+
+// Obtener una evaluación individual (debe ir ANTES de /:id/results)
+router.get(
+  '/:id',
+  authenticateToken,
+  evaluacionController.getEvaluacion
+);
+
 // Obtener resultados
 router.get(
   '/:id/results',

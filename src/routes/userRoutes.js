@@ -12,7 +12,7 @@ const validarActualizarPerfil = [
         .isLength({ min: 2, max: 100 })
         .withMessage('El nombre debe tener entre 2 y 100 caracteres'),
     body('avatar')
-        .optional()
+        .optional({ checkFalsy: true })  // Permite valores vacíos
         .trim()
         .isURL()
         .withMessage('El avatar debe ser una URL válida'),

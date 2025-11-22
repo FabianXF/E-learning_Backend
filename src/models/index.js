@@ -87,6 +87,8 @@ Certificado.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
 Curso.hasMany(Certificado, { foreignKey: 'idCurso', as: 'certificados' });
 Certificado.belongsTo(Curso, { foreignKey: 'idCurso', as: 'curso' });
 
+// Asociaciones de Foros (Ya definidas arriba)
+
 module.exports = {
   Usuario,
   Curso,

@@ -21,7 +21,6 @@ exports.createEvaluacion = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Curso no encontrado' });
     }
 
-    // Fix: Use req.usuario instead of req.user
     if (curso.idDocente !== req.usuario.idUsuario) {
       await t.rollback();
       return res.status(403).json({ status: 'error', message: 'No autorizado para crear evaluaciones en este curso' });
@@ -42,10 +41,6 @@ exports.createEvaluacion = async (req, res) => {
 
     if (preguntas && preguntas.length > 0) {
       for (const preg of preguntas) {
-        // Adaptar formato del frontend al backend
-        // Frontend envía: { pregunta, opciones: ["A", "B", "C"], respuestaCorrecta: 0 }
-        // Backend necesita: { textoPregunta, tipo, puntos, opciones: [{ texto, esCorrecta }] }
-
         const textoPregunta = preg.pregunta || preg.textoPregunta;
         const tipo = preg.tipo || 'opcion_multiple';
         const puntos = preg.puntos || 10;
@@ -57,9 +52,7 @@ exports.createEvaluacion = async (req, res) => {
           idEvaluacion: evaluacion.idEvaluacion
         }, { transaction: t });
 
-        // Convertir opciones del frontend al formato del backend
         if (tipo === 'opcion_multiple' && preg.opciones) {
-          // Si opciones es un array de strings (formato frontend)
           if (Array.isArray(preg.opciones) && typeof preg.opciones[0] === 'string') {
             for (let i = 0; i < preg.opciones.length; i++) {
               await Opcion.create({
@@ -69,7 +62,6 @@ exports.createEvaluacion = async (req, res) => {
               }, { transaction: t });
             }
           }
-          // Si opciones ya está en formato backend (array de objetos)
           else if (Array.isArray(preg.opciones) && typeof preg.opciones[0] === 'object') {
             for (const opc of preg.opciones) {
               await Opcion.create({
@@ -104,6 +96,8 @@ exports.submitEvaluacion = async (req, res) => {
 
   try {
     const { respuestas } = req.body;
+    console.log('[SUBMIT DEBUG] Respuestas recibidas:', JSON.stringify(respuestas, null, 2));
+
     const evaluacion = await Evaluacion.findByPk(req.params.id);
     if (!evaluacion) {
       return res.status(404).json({ status: 'error', message: 'Evaluación no encontrada' });
@@ -118,20 +112,42 @@ exports.submitEvaluacion = async (req, res) => {
     let feedback = '';
 
     for (const resp of respuestas) {
+      console.log(`[SUBMIT DEBUG] Procesando respuesta para pregunta ID: ${resp.idPregunta}`);
+
       const pregunta = await Pregunta.findByPk(resp.idPregunta);
       if (!pregunta || pregunta.idEvaluacion !== evaluacion.idEvaluacion) {
+        console.log(`[SUBMIT DEBUG] Pregunta no encontrada o no pertenece a la evaluación`);
         continue;
       }
 
       let correcta = false;
       if (pregunta.tipo === 'opcion_multiple') {
+        console.log(`[SUBMIT DEBUG] Buscando opción ID: ${resp.idOpcionSeleccionada}`);
         const opcion = await Opcion.findByPk(resp.idOpcionSeleccionada);
-        if (opcion && opcion.esCorrecta) {
-          correcta = true;
-          puntaje += pregunta.puntos;
+
+        if (opcion) {
+          const valorRaw = opcion.esCorrecta;
+          console.log(`[SUBMIT DEBUG] Opción encontrada: "${opcion.texto}", esCorrecta (Raw): ${valorRaw} (${typeof valorRaw})`);
+
+          // Verificación robusta
+          let esCorrectaBD = false;
+          if (valorRaw === true) esCorrectaBD = true;
+          else if (valorRaw === 1) esCorrectaBD = true;
+          else if (String(valorRaw) === 'true') esCorrectaBD = true;
+          else if (String(valorRaw) === '1') esCorrectaBD = true;
+
+          if (esCorrectaBD) {
+            correcta = true;
+            puntaje += pregunta.puntos;
+            console.log(`[SUBMIT DEBUG] ¡Respuesta CORRECTA! Puntaje actual: ${puntaje}`);
+          } else {
+            console.log(`[SUBMIT DEBUG] Respuesta INCORRECTA`);
+          }
+        } else {
+          console.log(`[SUBMIT DEBUG] Opción NO encontrada en BD`);
         }
       } else if (pregunta.tipo === 'verdadero_falso') {
-        correcta = true; // Implementar verificación real
+        correcta = true;
         if (correcta) puntaje += pregunta.puntos;
       } else if (pregunta.tipo === 'abierta') {
         feedback += 'Respuesta abierta pendiente de revisión. ';
@@ -146,8 +162,10 @@ exports.submitEvaluacion = async (req, res) => {
       });
     }
 
+    console.log(`[SUBMIT DEBUG] Puntaje final calculado: ${puntaje}`);
     res.json({ status: 'success', message: 'Evaluación enviada', data: { puntaje, feedback } });
   } catch (error) {
+    console.error('[SUBMIT ERROR]', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
@@ -163,12 +181,50 @@ exports.getResults = async (req, res) => {
     const isDocente = curso.idDocente === req.usuario.idUsuario;
     const respuestas = await RespuestaEstudiante.findAll({ where: { idUsuario: req.usuario.idUsuario } });
 
-    if (!isDocente) {
-      // Solo propias
-    }
-
     res.json({ status: 'success', message: 'Resultados obtenidos', data: { respuestas } });
   } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+exports.getEvaluacionesByCurso = async (req, res) => {
+  try {
+    const { idCurso } = req.params;
+    const curso = await Curso.findByPk(idCurso);
+    if (!curso) {
+      return res.status(404).json({ status: 'error', message: 'Curso no encontrado' });
+    }
+    const evaluaciones = await Evaluacion.findAll({
+      where: { idCurso },
+      include: [{
+        model: Pregunta,
+        as: 'preguntas',
+        include: [{ model: Opcion, as: 'opciones' }]
+      }],
+      order: [['fechaInicio', 'DESC']]
+    });
+    res.json({ status: 'success', message: 'Evaluaciones obtenidas', data: evaluaciones });
+  } catch (error) {
+    console.error('[GET EVALUACIONES BY CURSO] Error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+exports.getEvaluacion = async (req, res) => {
+  try {
+    const evaluacion = await Evaluacion.findByPk(req.params.id, {
+      include: [{
+        model: Pregunta,
+        as: 'preguntas',
+        include: [{ model: Opcion, as: 'opciones' }]
+      }]
+    });
+    if (!evaluacion) {
+      return res.status(404).json({ status: 'error', message: 'Evaluación no encontrada' });
+    }
+    res.json({ status: 'success', message: 'Evaluación obtenida', data: evaluacion });
+  } catch (error) {
+    console.error('[GET EVALUACION] Error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

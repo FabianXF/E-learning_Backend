@@ -40,9 +40,14 @@ exports.getProfile = async (req, res) => {
 
 // Actualizar perfil del usuario autenticado
 exports.updateProfile = async (req, res) => {
+    console.log('[UPDATE PROFILE] ===== Nueva petición =====');
+    console.log('[UPDATE PROFILE] Usuario:', req.usuario.nombre, `(${req.usuario.rol})`);
+    console.log('[UPDATE PROFILE] Body recibido:', req.body);
+
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('[UPDATE PROFILE] ❌ Errores de validación:', errors.array());
             return res.status(400).json({
                 status: 'error',
                 message: 'Errores de validación',
@@ -56,6 +61,7 @@ exports.updateProfile = async (req, res) => {
         const usuario = await Usuario.findByPk(idUsuario);
 
         if (!usuario) {
+            console.log('[UPDATE PROFILE] ❌ Usuario no encontrado');
             return res.status(404).json({
                 status: 'error',
                 message: 'Usuario no encontrado'
@@ -65,8 +71,10 @@ exports.updateProfile = async (req, res) => {
         // Preparar datos a actualizar
         const updateData = {};
         if (nombre) updateData.nombre = nombre;
-        if (avatar) updateData.avatar = avatar;
+        if (avatar && avatar.trim() !== '') updateData.avatar = avatar;  // Solo si no está vacío
         if (password) updateData.contrasena = password; // El hook de Sequelize lo hasheará
+
+        console.log('[UPDATE PROFILE] Datos a actualizar:', updateData);
 
         // Actualizar usuario
         await usuario.update(updateData);
@@ -75,6 +83,8 @@ exports.updateProfile = async (req, res) => {
         const usuarioActualizado = await Usuario.findByPk(idUsuario, {
             attributes: { exclude: ['contrasena'] }
         });
+
+        console.log('[UPDATE PROFILE] ✅ Perfil actualizado exitosamente');
 
         res.status(200).json({
             status: 'success',
@@ -92,6 +102,7 @@ exports.updateProfile = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('[UPDATE PROFILE] ❌ Error:', error);
         res.status(500).json({
             status: 'error',
             message: error.message

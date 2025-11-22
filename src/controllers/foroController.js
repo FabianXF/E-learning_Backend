@@ -177,7 +177,11 @@ exports.deleteMensaje = async (req, res) => {
     const foro = await mensaje.getForo();
     const curso = await foro.getCurso();
 
-    if (curso.idDocente !== req.usuario.idUsuario) {
+    // Verificar permisos: docente del curso O administrador
+    const esDocenteDelCurso = curso.idDocente === req.usuario.idUsuario;
+    const esAdmin = req.usuario.rol === 'admin';
+
+    if (!esDocenteDelCurso && !esAdmin) {
       return res.status(403).json({
         status: 'error',
         message: 'No autorizado para moderar este mensaje'
@@ -245,7 +249,8 @@ exports.getForosByCurso = async (req, res) => {
           model: Mensaje,
           as: 'mensajes', // Explicitly specify alias
           limit: 1,
-          order: [['fecha', 'DESC']]
+          order: [['fecha', 'DESC']],
+          include: [{ model: Usuario, as: 'usuario', attributes: ['nombre', 'avatar'] }]
         }
       ]
     });
@@ -261,5 +266,72 @@ exports.getForosByCurso = async (req, res) => {
       status: 'error',
       message: error.message
     });
+  }
+};
+
+// Obtener todos los foros de los cursos donde el usuario participa (docente o estudiante)
+exports.getMisForos = async (req, res) => {
+  try {
+    const idUsuario = req.usuario.idUsuario;
+
+    // 1. Cursos donde es docente
+    const cursosDocente = await Curso.findAll({
+      where: { idDocente: idUsuario },
+      attributes: ['idCurso']
+    });
+    const idsCursosDocente = cursosDocente.map(c => c.idCurso);
+
+    // 2. Cursos donde es estudiante
+    const inscripciones = await Inscripcion.findAll({
+      where: { idUsuario },
+      attributes: ['idCurso']
+    });
+    const idsCursosEstudiante = inscripciones.map(i => i.idCurso);
+
+    // Unir IDs (Set para únicos)
+    const allCursoIds = [...new Set([...idsCursosDocente, ...idsCursosEstudiante])];
+
+    if (allCursoIds.length === 0) {
+      return res.json({
+        status: 'success',
+        message: 'No tienes foros disponibles',
+        data: [],
+        foros: []
+      });
+    }
+
+    // 3. Buscar foros de estos cursos
+    const foros = await Foro.findAll({
+      where: {
+        idCurso: allCursoIds
+      },
+      include: [
+        {
+          model: Curso,
+          as: 'curso',
+          attributes: ['titulo', 'imagenUrl']
+        },
+        {
+          model: Mensaje,
+          as: 'mensajes',
+          // separate: true,
+          // limit: 1,
+          order: [['fecha', 'DESC']],
+          include: [{ model: Usuario, as: 'usuario', attributes: ['nombre', 'avatar'] }]
+        }
+      ],
+      order: [['idForo', 'DESC']]
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Mis foros obtenidos',
+      data: foros, // Array [ ... ]
+      foros: foros // Array [ ... ]
+    });
+
+  } catch (error) {
+    console.error('[GET MIS FOROS] Error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };

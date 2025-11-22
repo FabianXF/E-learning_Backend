@@ -55,11 +55,37 @@ exports.getMonitor = async (req, res) => {
   }
 
   try {
-    const usuariosActivos = await Usuario.count();
+    // Contar usuarios por rol
+    const totalUsuarios = await Usuario.count();
+    const estudiantes = await Usuario.count({ where: { rol: 'estudiante' } });
+    const docentes = await Usuario.count({ where: { rol: 'docente' } });
+    const admins = await Usuario.count({ where: { rol: 'admin' } });
+
+    // Contar cursos activos
     const cursosActivos = await Curso.count();
 
-    res.json({ status: 'success', message: 'Monitoreo obtenido', data: { usuariosActivos, cursosActivos } });
+    console.log('[ADMIN MONITOR] Estadísticas:', {
+      totalUsuarios,
+      estudiantes,
+      docentes,
+      admins,
+      cursosActivos
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Monitoreo obtenido',
+      data: {
+        usuariosActivos: totalUsuarios, // Mantener por compatibilidad si es necesario
+        totalUsuarios,
+        estudiantes,
+        docentes,
+        admins,
+        cursosActivos
+      }
+    });
   } catch (error) {
+    console.error('[ADMIN MONITOR] Error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
