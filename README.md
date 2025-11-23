@@ -1,629 +1,236 @@
+# 📚 E-Learning Platform - Backend
 
-# 📚 Backend E-Learning - Sprint 1
+Plataforma de aprendizaje en línea desarrollada con Node.js y Express que provee una API REST completa para gestionar estudiantes, docentes, cursos, evaluaciones y foros de discusión.
 
-Backend completo para aplicación e-learning desarrollado con **Node.js, Express y MySQL**, implementando los requerimientos del Sprint 1.
+## 🎯 Descripción del Proyecto
 
-## 🎯 Requerimientos Implementados
+Este es el backend de una plataforma e-learning completa que sirve datos a un cliente frontend. La aplicación permite:
 
-- **RE-01:** Registro e inicio de sesión de usuarios (autenticación segura con JWT)
-- **RE-02:** Búsqueda e inscripción en cursos
-- **RE-03:** Acceso y visualización de materiales
+- **Gestión de Usuarios**: Registro, autenticación y roles (Estudiante, Docente, Admin)
+- **Gestión de Cursos**: Creación de cursos, módulos y subida de materiales multimedia
+- **Evaluaciones**: Sistema completo de creación y calificación de exámenes
+- **Comunidad**: Foros de discusión con moderación
+- **Certificación**: Generación automática de certificados en PDF
 
 ## 🚀 Tecnologías Utilizadas
 
-- **Node.js** - Entorno de ejecución
-- **Express** - Framework web
+- **Node.js** - Entorno de ejecución para JavaScript
+- **Express** - Framework web para crear la API REST
 - **MySQL** - Base de datos relacional
-- **Sequelize** - ORM para MySQL
-- **JWT** - Autenticación mediante tokens
-- **bcrypt** - Cifrado de contraseñas
-- **express-validator** - Validación de datos
-- **dotenv** - Variables de entorno
-- **cors** - Soporte CORS
+- **Sequelize** - ORM para manejo de base de datos
+- **JWT** - Autenticación segura mediante tokens
+- **Bcrypt** - Cifrado de contraseñas
+- **Multer** - Manejo de carga de archivos
+- **PDFKit** - Generación de documentos PDF
 
 ## 📁 Estructura del Proyecto
 
-# Backend E-Learning - Sprints 1-4 Completos
-
-Backend completo para aplicación e-learning desarrollado con Node.js, Express y MySQL, implementando todos los requerimientos de los Sprints 1-4 basados en el plan de sprints y la especificación de requerimientos (RE, RD, RA, CU, RNF) del documento "DERS_GRUPO_1_APP_E_LEARNING (2).pdf".
-
-🎯 Requerimientos Implementados
-
-* RE-01: Registro e inicio de sesión de usuarios (autenticación segura con JWT)
-* RE-02: Búsqueda e inscripción en cursos
-* RE-03: Acceso y visualización de materiales
-* RE-04: Visualización y descarga de materiales didácticos
-* RE-05: Realización de evaluaciones en línea con retroalimentación
-* RE-06: Seguimiento de progreso del estudiante
-* RE-07: Participación en foros y mensajería
-* RE-08: Generación de certificados al finalizar cursos
-* RD-01/02/03: Creación y gestión de cursos/materiales por docentes
-* RD-04/06: Creación de evaluaciones y foros
-* RD-05/07: Reportes y cohortes
-* RA-01/02/03/04: Gestión de usuarios, monitoreo admin y reportes
-* CU-01 a CU-08: Todos los casos de uso cubiertos (registro, inscripción, materiales, evaluaciones, foros, progreso, reportes, certificados)
-* RNF-02/06/07/09/13/15: Compatibilidad multimedia, seguridad (JWT/bcrypt), usabilidad, retroalimentación inmediata
-
-🚀 Tecnologías Utilizadas
-
-* Node.js - Entorno de ejecución
-* Express - Framework web
-* MySQL - Base de datos relacional
-* Sequelize - ORM para MySQL
-* JWT - Autenticación mediante tokens
-* bcrypt - Cifrado de contraseñas
-* express-validator - Validación de datos
-* dotenv - Variables de entorno
-* cors - Soporte CORS
-* multer - Manejo de uploads de archivos
-* pdfkit - Generación de PDFs (reportes y certificados)
-* nodemailer - Envío de emails (reportes)
-* chart.js - Datos para gráficos de progreso (JSON para frontend)
-* uuid - Generación de códigos únicos para certificados
-
-📁 Estructura del Proyecto
-
-backend/
- ├── src/
- │   ├── config/
- │   │   └── db.js              # Configuración de base de datos
- │   ├── controllers/
- │   │   ├── authController.js   # Controladores de autenticación
- HEAD
- │   │   └── cursoController.js  # Controladores de cursos
- │   ├── middleware/
- │   │   └── auth.js             # Middleware de autenticación JWT
- │   │   ├── cursoController.js  # Controladores de cursos (crear, editar, eliminar, módulos)
- │   │   ├── materialController.js  # Upload y acceso a materiales
- │   │   ├── evaluacionController.js  # Creación, envío y resultados de evaluaciones
- │   │   ├── foroController.js    # Foros y mensajes (crear, leer, moderar)
- │   │   ├── progresoController.js  # Seguimiento de progreso
- │   │   ├── reporteController.js  # Generación de reportes
- │   │   ├── certificadoController.js  # Generación de certificados
- │   │   └── adminController.js    # Gestión admin (usuarios, monitoreo)
- │   ├── middleware/
- │   │   ├── auth.js             # Middleware de autenticación JWT y roles
- │   │   └── upload.js           # Configuración de multer para archivos
- │   ├── models/
- │   │   ├── Usuario.js          # Modelo de Usuario
- │   │   ├── Curso.js            # Modelo de Curso
- │   │   ├── Inscripcion.js      # Modelo de Inscripción
- │   │   ├── Material.js         # Modelo de Material
- │   │   ├── Evaluacion.js       # Modelo de Evaluación
- │   │   ├── Foro.js             # Modelo de Foro
- │   │   ├── Mensaje.js          # Modelo de Mensaje
- │   │   ├── Reporte.js          # Modelo de Reporte
- │   │   └── index.js            # Relaciones entre modelos
- │   ├── routes/
- │   │   ├── authRoutes.js       # Rutas de autenticación
- │   │   └── cursoRoutes.js      # Rutas de cursos
- │   ├── utils/
- │   │   ├── jwt.js              # Utilidades JWT
- │   │   └── errorHandler.js     # Manejo de errores
- │   └── app.js                  # Configuración de Express
- ├── database.sql                # Script SQL de base de datos
- ├── server.js                   # Punto de entrada
- ├── package.json                # Dependencias del proyecto
- └── README.md                   # Esta documentación
+```
+src/
+├── config/                  # Configuración del sistema
+│   └── db.js               # Conexión a base de datos MySQL
+├── controllers/             # Lógica de negocio
+│   ├── authController.js   # Autenticación y registro
+│   ├── cursoController.js  # Gestión de cursos y módulos
+│   ├── evaluacionController.js # Lógica de exámenes
+│   ├── foroController.js   # Foros y mensajes
+│   ├── materialController.js # Subida de archivos
+│   ├── progresoController.js # Seguimiento de estudiantes
+│   └── adminController.js  # Panel de administración
+├── middleware/              # Intermediarios
+│   ├── auth.js             # Verificación de JWT y roles
+│   └── upload.js           # Configuración de Multer
+├── models/                  # Modelos de datos (Sequelize)
+│   ├── Usuario.js, Curso.js, Material.js...
+│   └── index.js            # Relaciones entre tablas
+├── routes/                  # Definición de endpoints
+│   ├── authRoutes.js
+│   ├── cursoRoutes.js
+│   ├── evaluacionRoutes.js
+│   └── ...
+├── utils/                   # Utilidades
+│   ├── pdfGenerator.js     # Generador de certificados
+│   └── emailSender.js      # Envío de correos
+└── app.js                   # Configuración de Express
 ```
 
-## ⚙️ Instalación y Configuración
+## 🔧 Instalación y Configuración
 
-### 1. Instalar dependencias
+### Prerrequisitos
 
+- Node.js (v14 o superior)
+- MySQL Server corriendo
+- Git
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
+```bash
+git clone https://github.com/FabianXF/elearning-backend.git
+cd elearning-backend
+```
+
+2. **Instalar dependencias**
 ```bash
 npm install
 ```
 
-### 2. Configurar variables de entorno
+3. **Configurar Variables de Entorno**
 
 Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
 ```env
- │   │   ├── Modulo.js           # Modelo de Módulo
- │   │   ├── ProgresoMaterial.js # Modelo de Progreso en Materiales
- │   │   ├── Pregunta.js         # Modelo de Pregunta en Evaluaciones
- │   │   ├── Opcion.js           # Modelo de Opciones en Preguntas
- │   │   ├── RespuestaEstudiante.js # Modelo de Respuestas de Estudiantes
- │   │   ├── Certificado.js      # Modelo de Certificado
- │   │   └── index.js            # Relaciones entre modelos
- │   ├── routes/
- │   │   ├── authRoutes.js       # Rutas de autenticación
- │   │   ├── cursoRoutes.js      # Rutas de cursos
- │   │   ├── materialRoutes.js   # Rutas de materiales
- │   │   ├── evaluacionRoutes.js # Rutas de evaluaciones
- │   │   ├── foroRoutes.js       # Rutas de foros
- │   │   ├── progresoRoutes.js   # Rutas de progreso
- │   │   ├── reporteRoutes.js    # Rutas de reportes
- │   │   ├── certificadoRoutes.js # Rutas de certificados
- │   │   └── adminRoutes.js      # Rutas admin
- │   ├── utils/
- │   │   ├── jwt.js              # Utilidades JWT
- │   │   ├── errorHandler.js     # Manejo de errores
- │   │   ├── pdfGenerator.js     # Generador de PDFs
- │   │   └── emailSender.js      # Envío de emails
- │   └── app.js                  # Configuración de Express
- ├── uploads/                     # Archivos subidos (materiales)
- ├── certificates/                # PDFs de certificados generados
- ├── reports/                     # PDFs de reportes generados
- ├── database.sql                 # Script SQL de base de datos
- ├── server.js                    # Punto de entrada
- ├── package.json                 # Dependencias del proyecto
- └── README.md                    # Esta documentación
-```
+# Servidor
+PORT=8080
+NODE_ENV=development
 
-⚙️ Instalación y Configuración
-1. Instalar dependencias
-
-```
-npm install
-```
-
-2. Configurar variables de entorno
-Crea un archivo .env en la raíz del proyecto con las siguientes variables:
-
-```
->>>>>>> 0ca347d6a5d5c006456af5045eb112b69f7853cd
-# Configuración de Base de Datos
+# Base de Datos
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_contraseña
 DB_NAME=elearning_db
 DB_PORT=3306
 
-# Configuración JWT
-JWT_SECRET=tu_clave_secreta_super_segura_cambiar_en_produccion
+# Autenticación
+JWT_SECRET=tu_clave_secreta_super_segura
 JWT_EXPIRES_IN=24h
-
-# Configuración del Servidor
-PORT=8080
-NODE_ENV=development
-
-# Sincronización de Base de Datos (opcional)
-# Por defecto: NO sincroniza (para BDs existentes)
-# SYNC_DB=true          # Habilitar sincronización automática
-# SYNC_DB_ALTER=true    # Modificar tablas existentes (¡cuidado!)
 ```
 
-### 3. Base de datos
+4. **Configurar Base de Datos**
 
-**Si ya tienes la base de datos creada:**
-- Asegúrate de que las tablas tengan los nombres exactos:
-  - `Usuario` (con campos: idUsuario, nombre, correo, contrasena, rol)
-  - `Curso` (con campos: idCurso, titulo, descripcion, categoria, idDocente)
-  - `Inscripcion` (con campos: idUsuario, idCurso, fechaInscripcion)
-  - `Material` (con campos: idMaterial, tipo, url, idCurso)
-  - `Evaluacion`, `Foro`, `Mensaje`, `Reporte`
-- El sistema NO sincronizará automáticamente si ya existe la BD (por defecto)
-- Solo necesitas configurar las variables de entorno en `.env`
-
-**Si necesitas crear la base de datos:**
-Ejecuta el script SQL proporcionado:
-
+Ejecuta el script SQL incluido para crear la estructura inicial:
 ```bash
 mysql -u root -p < database.sql
 ```
 
-O importa el archivo `database.sql` desde tu cliente MySQL.
-
-### 4. Iniciar el servidor
-
+5. **Iniciar el servidor**
 ```bash
-# Email para reportes
-EMAIL_USER=tuemail@gmail.com
-EMAIL_PASS=tuapppassword
-
-# Sincronización de Base de Datos (opcional)
-SYNC_DB=true
-SYNC_DB_ALTER=true
-```
-
-3. Base de datos
-Ejecuta el script SQL proporcionado:
-
-```
-mysql -u root -p < database.sql
-```
-
-4. Iniciar el servidor
-
-```
-# Modo desarrollo (con nodemon)
+# Desarrollo (con recarga automática)
 npm run dev
 
-# Modo producción
+# Producción
 npm start
 ```
-El servidor estará disponible en `http://localhost:3000`
 
-## 📡 Endpoints de la API
+El servidor estará disponible en `http://localhost:8080`
 
-### 🔐 Autenticación
+## 👥 Roles y Funcionalidades
 
-#### POST `/api/auth/register`
-Registrar nuevo usuario.
+### 🎓 Estudiante
 
-**Body:**
-```json
-{
-  "nombre": "Juan Pérez",
-  "correo": "juan@ejemplo.com",
-  "contrasena": "password123",
-  "rol": "estudiante" // opcional: "estudiante" | "docente" | "admin"
-}
+- **Acceso**: Puede inscribirse en cursos y ver contenido
+- **Evaluaciones**: Puede enviar respuestas y ver sus calificaciones
+- **Progreso**: Se registra su avance automáticamente
+- **Certificados**: Puede descargar PDF al completar el 100%
+
+### 👨‍🏫 Docente
+
+- **Gestión**: Puede crear cursos, módulos y subir materiales
+- **Evaluaciones**: Crea preguntas y define respuestas correctas
+- **Foros**: Modera discusiones en sus cursos
+- **Reportes**: Accede a estadísticas de sus alumnos
+
+### 👨‍💼 Administrador
+
+- **Control Total**: Gestiona todos los usuarios y cursos
+- **Monitoreo**: Visualiza estadísticas globales del sistema
+- **Moderación**: Puede eliminar cualquier contenido inapropiado
+
+## 🔐 Autenticación
+
+El sistema utiliza JWT (JSON Web Tokens) para proteger los endpoints:
+
+1. El usuario envía credenciales a `/api/auth/login`
+2. El servidor valida y retorna un `token`
+3. El cliente debe enviar el token en el header: `Authorization: Bearer <token>`
+4. El middleware `auth.js` valida el token y el rol antes de permitir el acceso
+
+## 📡 Endpoints Principales
+
+### Autenticación
+```http
+POST /api/auth/register  - Registrar usuario
+POST /api/auth/login     - Iniciar sesión
+GET  /api/auth/me        - Datos del usuario actual
 ```
 
-**Respuesta exitosa (201):**
-```json
-{
-  "status": "success",
-  "message": "Usuario registrado exitosamente",
-  "data": {
-    "usuario": {
-      "idUsuario": 1,
-      "nombre": "Juan Pérez",
-      "correo": "juan@ejemplo.com",
-      "rol": "estudiante"
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
+### Cursos
+```http
+GET  /api/cursos         - Listar cursos
+POST /api/cursos         - Crear curso (Docente)
+POST /api/cursos/:id/inscribirse - Inscribirse
+GET  /api/cursos/:id/materiales - Ver contenido
 ```
 
-#### POST `/api/auth/login`
-Iniciar sesión.
-
-**Body:**
-```json
-{
-  "correo": "juan@ejemplo.com",
-  "contrasena": "password123"
-}
+### Evaluaciones
+```http
+GET  /api/evaluaciones/curso/:id - Listar evaluaciones
+GET  /api/evaluaciones/:id       - Ver detalles
+POST /api/evaluaciones/create    - Crear (Docente)
+POST /api/evaluaciones/:id/submit - Enviar respuestas
 ```
 
-**Respuesta exitosa (200):**
-```json
-{
-  "status": "success",
-  "message": "Inicio de sesión exitoso",
-  "data": {
-    "usuario": {
-      "idUsuario": 1,
-      "nombre": "Juan Pérez",
-      "correo": "juan@ejemplo.com",
-      "rol": "estudiante"
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
+### Foros
+```http
+GET  /api/foros/mis-foros        - Ver mis foros
+POST /api/foros/:id/mensajes     - Publicar mensaje
+DELETE /api/foros/mensajes/:id   - Eliminar mensaje
 ```
 
-### 📚 Cursos
-
-#### GET `/api/cursos`
-Buscar cursos (público, sin autenticación).
-
-**Query Parameters:**
-- `categoria` (opcional): Filtrar por categoría
-- `titulo` (opcional): Buscar por título
-
-**Ejemplo:**
-```
-GET /api/cursos?categoria=programacion&titulo=javascript
+### Progreso y Certificados
+```http
+GET  /api/progreso/:idCurso      - Ver porcentaje
+GET  /api/certificados/:idCurso  - Descargar PDF
 ```
 
-**Respuesta exitosa (200):**
-```json
-{
-  "status": "success",
-  "message": "Cursos encontrados",
-  "data": {
-    "cursos": [
-      {
-        "idCurso": 1,
-        "titulo": "Introducción a JavaScript",
-        "descripcion": "Curso básico de JavaScript",
-        "categoria": "programacion",
-        "idDocente": 2,
-        "docente": {
-          "idUsuario": 2,
-          "nombre": "Profesor Ejemplo",
-          "correo": "docente@ejemplo.com"
-        }
-      }
-    ],
-    "total": 1
-  }
-}
+## 🐛 Solución de Problemas Comunes
+
+### Error: "SequelizeConnectionError"
+**Causa**: Credenciales de base de datos incorrectas en `.env`  
+**Solución**: Verificar usuario, contraseña y puerto de MySQL
+
+### Error: "jwt malformed"
+**Causa**: Token inválido o expirado en el header  
+**Solución**: Volver a iniciar sesión para obtener un nuevo token
+
+### Error 404 en subida de archivos
+**Causa**: Carpeta `uploads/` no existe  
+**Solución**: Crear manualmente la carpeta `uploads` en la raíz
+
+## � Scripts Disponibles
+
+```bash
+# Desarrollo
+npm run dev        # Inicia con Nodemon (reinicio automático)
+
+# Producción
+npm start          # Inicia con Node estándar
+
+# Linting
+npm run lint       # Verifica estilo de código
 ```
 
-#### POST `/api/cursos`
-Crear nuevo curso (requiere autenticación, solo docentes).
+## 🤝 Contribución
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+Para contribuir al proyecto:
 
-**Body:**
-```json
-{
-  "titulo": "Introducción a JavaScript",
-  "descripcion": "Curso básico de JavaScript para principiantes",
-  "categoria": "programacion"
-}
-```
-
-**Respuesta exitosa (201):**
-```json
-{
-  "status": "success",
-  "message": "Curso creado exitosamente",
-  "data": {
-    "curso": {
-      "idCurso": 1,
-      "titulo": "Introducción a JavaScript",
-      "descripcion": "Curso básico de JavaScript para principiantes",
-      "categoria": "programacion",
-      "idDocente": 2,
-      "docente": {
-        "idUsuario": 2,
-        "nombre": "Profesor Ejemplo",
-        "correo": "docente@ejemplo.com"
-      }
-    }
-  }
-}
-```
-
-#### POST `/api/cursos/:id/inscribirse`
-Inscribirse en un curso (requiere autenticación).
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Respuesta exitosa (201):**
-```json
-{
-  "status": "success",
-  "message": "Inscripción realizada exitosamente",
-  "data": {
-    "inscripcion": {
-      "idUsuario": 1,
-      "idCurso": 1,
-      "fechaInscripcion": "2024-01-15"
-    }
-  }
-}
-```
-
-#### GET `/api/cursos/:id/materiales`
-Obtener materiales de un curso (requiere autenticación, solo usuarios inscritos o docente).
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Respuesta exitosa (200):**
-```json
-{
-  "status": "success",
-  "message": "Materiales obtenidos exitosamente",
-  "data": {
-    "materiales": [
-      {
-        "idMaterial": 1,
-        "tipo": "pdf",
-        "url": "https://ejemplo.com/material1.pdf",
-        "idCurso": 1
-      },
-      {
-        "idMaterial": 2,
-        "tipo": "video",
-        "url": "https://ejemplo.com/video1.mp4",
-        "idCurso": 1
-      }
-    ],
-    "total": 2
-  }
-}
-```
-
-### 🏥 Health Check
-
-#### GET `/health`
-Verificar estado del servidor.
-
-**Respuesta (200):**
-```json
-{
-  "status": "success",
-  "message": "Servidor funcionando correctamente",
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
-```
-
-## 🔒 Autenticación
-
-Todos los endpoints protegidos requieren un token JWT en el header:
-
-```
-Authorization: Bearer <token>
-```
-
-El token se obtiene al registrarse o iniciar sesión y tiene una validez de 24 horas por defecto.
-
-## 🎭 Roles de Usuario
-
-- **estudiante**: Puede buscar cursos, inscribirse y ver materiales
-- **docente**: Puede crear cursos además de las funcionalidades de estudiante
-- **admin**: Acceso completo (puede crear cursos)
-
-## 🛡️ Validaciones Implementadas
-
-### Registro de Usuario
-- Nombre: 2-100 caracteres
-- Correo: Formato válido y único
-- Contraseña: Mínimo 6 caracteres
-- Rol: Opcional, debe ser "estudiante", "docente" o "admin"
-
-### Creación de Curso
-- Título: 3-200 caracteres
-- Descripción: Requerida
-- Categoría: Máximo 80 caracteres
-
-### Inscripción
-- El usuario no puede inscribirse en su propio curso (si es docente)
-- No se puede inscribir dos veces en el mismo curso
-
-### Materiales
-- Solo usuarios inscritos o el docente del curso pueden acceder
-
-## 📊 Modelo de Datos
-
-El sistema incluye las siguientes entidades:
-
-- **Usuario**: Usuarios del sistema (estudiantes, docentes, admin)
-- **Curso**: Cursos disponibles
-- **Inscripcion**: Relación muchos a muchos entre Usuario y Curso
-- **Material**: Materiales de los cursos (pdf, video, documentos, etc.)
-- **Evaluacion**: Evaluaciones asociadas a cursos
-- **Foro**: Foros de discusión por curso
-- **Mensaje**: Mensajes en los foros
-- **Reporte**: Reportes generados por usuarios
-
-## 🐛 Manejo de Errores
-
-El sistema maneja errores de forma centralizada:
-
-- **400**: Error de validación
-- **401**: No autenticado o token inválido
-- **403**: Sin permisos
-- **404**: Recurso no encontrado
-- **409**: Conflicto (recurso duplicado)
-- **500**: Error interno del servidor
-
-## 📝 Notas Importantes
-
-- Las contraseñas se cifran automáticamente con bcrypt antes de guardarse
-- Los modelos se sincronizan automáticamente en modo desarrollo
-- El sistema usa Sequelize para gestionar las relaciones entre modelos
-- Todas las respuestas siguen el formato: `{ status, message, data }`
-
-## 🚧 Sprint 1 - Alcance
-
-Este Sprint 1 incluye:
-- ✅ Registro e inicio de sesión
-- ✅ Búsqueda e inscripción en cursos
-- ✅ Acceso a materiales
-
-**Fuera del alcance (Sprint 1):**
-- ❌ Evaluaciones en línea
-- ❌ Foros y mensajería
-- ❌ Reportes
-- ❌ Progreso de estudiantes
-- ❌ Sistema de pagos
-
-## 👤 Autor
-
-Desarrollado para el Sprint 1 del proyecto E-Learning.
+1. Crear una rama para tu feature: `git checkout -b feature/nueva-funcionalidad`
+2. Hacer commits descriptivos: `git commit -m "Agregar funcionalidad X"`
+3. Push a la rama: `git push origin feature/nueva-funcionalidad`
+4. Crear un Pull Request
 
 ## 📄 Licencia
 
-ISC
+Este proyecto es parte de un trabajo académico para la materia de Tecnología Web.
 
-El servidor estará disponible en http://localhost:8080
+## 👨‍💻 Autores
 
-📡 Endpoints de la API
-Todas las respuestas siguen el formato: { status, message, data }. Endpoints protegidos requieren `Authorization: Bearer <token>`.
+- **Equipo de Desarrollo** - Proyecto E-Learning 7° Semestre
 
-🔐 Autenticación
-- POST /api/auth/register - Registrar usuario (body: {nombre, correo, contrasena, rol})
-- POST /api/auth/login - Iniciar sesión (body: {correo, contrasena})
+## 📞 Soporte
 
-📚 Cursos
-- GET /api/cursos - Buscar cursos (?categoria, ?titulo)
-- POST /api/cursos - Crear curso (solo docentes/admin, body: {titulo, descripcion, categoria})
-- PUT /api/cursos/:id - Editar curso (solo docente/admin, body opcional)
-- DELETE /api/cursos/:id - Eliminar curso (solo docente/admin)
-- POST /api/cursos/:id/modulos - Agregar módulo (solo docente, body: {titulo, descripcion, orden})
-- POST /api/cursos/:id/inscribirse - Inscribirse
-- GET /api/cursos/:id/materiales - Obtener materiales (inscritos/docente)
+Para preguntas o problemas, contactar al equipo de desarrollo o crear un issue en GitHub.
 
-🗂️ Materiales
-- POST /api/materiales/upload - Subir material (multipart file + body: {titulo, tipo, idModulo}, solo docente)
-- GET /api/materiales/:id - Ver/descargar material (inscritos/docente)
+---
 
-📝 Evaluaciones
-- POST /api/evaluaciones/create - Crear evaluación (solo docentes, body: {titulo, descripcion, fechaInicio, fechaFin, idCurso, preguntas[]})
-- POST /api/evaluaciones/:id/submit - Enviar respuestas (estudiantes, body: {respuestas[]})
-- GET /api/evaluaciones/:id/results - Ver resultados
-
-💬 Foros y Mensajes
-- POST /api/foros - Crear foro (solo docentes, body: {tema, idCurso})
-- GET /api/foros/:id - Ver foro y mensajes (inscritos/docente)
-- POST /api/foros/:id/mensajes - Publicar mensaje (body: {contenido})
-- DELETE /api/mensajes/:id - Moderar/eliminar mensaje (solo docente)
-
-📈 Progreso
-- GET /api/progreso/:idCurso - Ver progreso (% y gráfico data)
-- PUT /api/progreso/:idCurso/material/:idMaterial - Marcar material completado
-
-📊 Reportes
-- GET /api/reportes/:idCurso - Generar reporte (?email=true para enviar)
-
-🏆 Certificados
-- GET /api/certificados/:idCurso - Generar/descargar certificado (al 100% progreso)
-
-🛠️ Admin
-- GET /api/admin/usuarios - Listar usuarios
-- PUT /api/admin/usuarios/:id - Editar usuario (incl. roles)
-- DELETE /api/admin/usuarios/:id - Eliminar usuario
-- GET /api/admin/monitor - Monitoreo general (actividad, stats)
-
-🏥 Health Check
-- GET /health - Verificar estado
-
-🔒 Autenticación
-Token JWT requerido para protegidos, válido 24h.
-
-🎭 Roles de Usuario
-* estudiante: Buscar/inscribir cursos, ver materiales, evaluaciones, foros, progreso, certificados
-* docente: Crear/editar cursos/materiales/evaluaciones/foros, moderar, reportes
-* admin: Acceso completo, gestión usuarios/monitoreo
-
-🛡️ Validaciones Implementadas
-- Registro: Nombre (2-100), correo único, contraseña (min 6), rol válido
-- Cursos: Título (3-200), descripción requerida, categoría (max 80)
-- Materiales: Formatos permitidos (pdf, video, etc.), acceso restringido
-- Evaluaciones: Fechas válidas, tipos de preguntas, feedback auto
-- Foros: Contenido no vacío, moderación
-- Progreso: Solo inscritos
-- Reportes/Certificados: Autorización y condiciones (e.g., 100% progreso)
-
-📊 Modelo de Datos
-Entidades: Usuario, Curso, Inscripcion, Modulo, Material, ProgresoMaterial, Evaluacion, Pregunta, Opcion, RespuestaEstudiante, Foro, Mensaje, Certificado, Reporte. Relaciones definidas en index.js.
-
-🐛 Manejo de Errores
-Centralizado: 400 (validación), 401 (no auth), 403 (sin permisos), 404 (no encontrado), 409 (conflicto), 500 (interno).
-
-📝 Notas Importantes
-- Contraseñas cifradas con bcrypt
-- Sincronización DB automática en dev
-- Uploads limitados a 10MB, formatos validados
-- PDFs generados on-demand, emails opcionales para reportes
-- Cobertura completa de sprints: Interactividad (foros/evaluaciones), tracking (progreso), admin tools
-
-🚧 Alcance Completo (Sprints 1-4)
-✅ Registro/login, cursos/materiales, evaluaciones, foros, progreso, reportes, certificados, admin.  
-❌ Pagos (fuera de alcance).
-
-👤 Autor
-Desarrollado para el proyecto E-Learning de Edutecnia.
-
-📄 Licencia
-ISC
-
+**Última actualización**: Noviembre 2025
