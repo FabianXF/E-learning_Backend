@@ -162,8 +162,45 @@ exports.submitEvaluacion = async (req, res) => {
       });
     }
 
-    console.log(`[SUBMIT DEBUG] Puntaje final calculado: ${puntaje}`);
-    res.json({ status: 'success', message: 'Evaluación enviada', data: { puntaje, feedback } });
+    // Calcular el total de preguntas y el porcentaje
+    const totalPreguntas = respuestas.length;
+    const puntajeMaximo = totalPreguntas * 10; // Asumiendo 10 puntos por pregunta
+    const calificacion = puntajeMaximo > 0 ? Math.round((puntaje / puntajeMaximo) * 100) : 0;
+
+    // Contar respuestas correctas
+    let correctas = 0;
+    for (const resp of respuestas) {
+      const pregunta = await Pregunta.findByPk(resp.idPregunta);
+      if (!pregunta) continue;
+
+      if (pregunta.tipo === 'opcion_multiple' && resp.idOpcionSeleccionada) {
+        const opcion = await Opcion.findByPk(resp.idOpcionSeleccionada);
+        if (opcion) {
+          // Verificación robusta del valor booleano
+          const esCorrecta = opcion.esCorrecta === 1 || opcion.esCorrecta === true ||
+            String(opcion.esCorrecta) === '1' || String(opcion.esCorrecta) === 'true';
+          if (esCorrecta) correctas++;
+        }
+      }
+    }
+
+    console.log(`[SUBMIT DEBUG] Puntaje final: ${puntaje}/${puntajeMaximo}`);
+    console.log(`[SUBMIT DEBUG] Calificación: ${calificacion}%`);
+    console.log(`[SUBMIT DEBUG] Correctas: ${correctas}/${totalPreguntas}`);
+
+    const resultado = {
+      puntaje,
+      calificacion,
+      correctas,
+      total: totalPreguntas,
+      feedback
+    };
+
+    res.json({
+      status: 'success',
+      message: 'Evaluación enviada',
+      data: { resultado }
+    });
   } catch (error) {
     console.error('[SUBMIT ERROR]', error);
     res.status(500).json({ status: 'error', message: error.message });
@@ -225,6 +262,104 @@ exports.getEvaluacion = async (req, res) => {
     res.json({ status: 'success', message: 'Evaluación obtenida', data: evaluacion });
   } catch (error) {
     console.error('[GET EVALUACION] Error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// Nuevo endpoint para que docentes/admins vean resultados de estudiantes
+exports.getEstudiantesResults = async (req, res) => {
+  try {
+    const { id } = req.params; // ID de la evaluación
+    const evaluacion = await Evaluacion.findByPk(id, {
+      include: [{
+        model: Pregunta,
+        as: 'preguntas'
+      }]
+    });
+
+    if (!evaluacion) {
+      return res.status(404).json({ status: 'error', message: 'Evaluación no encontrada' });
+    }
+
+    // Verificar que el usuario sea docente del curso o admin
+    const curso = await Curso.findByPk(evaluacion.idCurso);
+    const isDocente = curso.idDocente === req.usuario.idUsuario;
+    const isAdmin = req.usuario.rol === 'admin';
+
+    if (!isDocente && !isAdmin) {
+      return res.status(403).json({ status: 'error', message: 'No autorizado' });
+    }
+
+    // Obtener todas las respuestas de estudiantes para esta evaluación
+    const { Usuario } = require('../models');
+    const respuestas = await RespuestaEstudiante.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'usuario',
+          attributes: ['idUsuario', 'nombre', 'correo']
+        },
+        {
+          model: Pregunta,
+          as: 'pregunta',
+          where: { idEvaluacion: id },
+          include: [{
+            model: Opcion,
+            as: 'opciones'
+          }]
+        }
+      ]
+    });
+
+    // Agrupar respuestas por estudiante
+    const estudiantesMap = {};
+
+    for (const resp of respuestas) {
+      const userId = resp.idUsuario;
+
+      if (!estudiantesMap[userId]) {
+        estudiantesMap[userId] = {
+          usuario: resp.usuario,
+          respuestas: [],
+          correctas: 0,
+          total: 0
+        };
+      }
+
+      estudiantesMap[userId].respuestas.push(resp);
+      estudiantesMap[userId].total++;
+
+      if (resp.correcta) {
+        estudiantesMap[userId].correctas++;
+      }
+    }
+
+    // Convertir a array y calcular calificaciones
+    const estudiantes = Object.values(estudiantesMap).map(est => {
+      const calificacion = est.total > 0 ? Math.round((est.correctas / est.total) * 100) : 0;
+      return {
+        usuario: est.usuario,
+        correctas: est.correctas,
+        total: est.total,
+        calificacion,
+        aprobado: calificacion >= 70
+      };
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Resultados obtenidos',
+      data: {
+        evaluacion: {
+          id: evaluacion.idEvaluacion,
+          titulo: evaluacion.titulo,
+          totalPreguntas: evaluacion.preguntas.length
+        },
+        estudiantes
+      }
+    });
+  } catch (error) {
+    console.error('[GET ESTUDIANTES RESULTS] Error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

@@ -43,4 +43,11 @@ router.get(
   evaluacionController.getResults
 );
 
+// Obtener resultados de todos los estudiantes (para docentes/admins)
+router.get(
+  '/:id/estudiantes-results',
+  authenticateToken,
+  evaluacionController.getEstudiantesResults
+);
+
 module.exports = router;

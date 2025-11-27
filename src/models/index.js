@@ -31,6 +31,12 @@ Curso.belongsToMany(Usuario, {
   as: 'estudiantes'
 });
 
+// Direct associations for Inscripcion
+Inscripcion.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
+Inscripcion.belongsTo(Curso, { foreignKey: 'idCurso', as: 'curso' });
+Usuario.hasMany(Inscripcion, { foreignKey: 'idUsuario', as: 'inscripciones' });
+Curso.hasMany(Inscripcion, { foreignKey: 'idCurso', as: 'inscripciones' });
+
 Usuario.hasMany(Mensaje, { foreignKey: 'idUsuario', as: 'mensajes' });
 Mensaje.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
 

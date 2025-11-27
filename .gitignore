@@ -30,3 +30,20 @@ Thumbs.db
 tmp/
 temp/
 
+# Archivos generados
+certificates/*.pdf
+uploads/*
+!uploads/.gitkeep
+!certificates/.gitkeep
+
+# Archivos de prueba y diagnóstico
+*test*.js
+*debug*.js
+*verify*.js
+*diagnostico*.js
+check_*.js
+limpiar_*.js
+inscribir_*.js
+query_*.js
+diagnostico_*.txt
+SOLUCION_*.md
