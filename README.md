@@ -427,7 +427,7 @@ Este proyecto es parte de un trabajo académico para la materia de **Tecnología
 ## 👨‍💻 Autores
 
 - **Equipo de Desarrollo** - Proyecto E-Learning
-- **Universidad**: [Tu Universidad]
+- **Universidad**: Universidad Simon Bolivar 
 - **Semestre**: 7° Semestre - 2025
 
 ## 🤝 Contribución
